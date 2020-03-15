@@ -39,21 +39,26 @@ class mainWindow(QMainWindow):    #Main class.
     zoomLevel = -5
     rotateDegreeH = 0
     rotateDegreeV = -45
+    colors = [(1, 0, 0), (0, 0, 1), (0, 0, 1), (1, 0, 0)]
+    colorCTR = 0
     
     vertShaderCode = """#version 120    
+varying vec4 vertex_color;
 void main() {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    vertex_color = gl_Color;
 }"""
     fragShaderCode = """#version 120
+varying vec4 vertex_color;
 void main() {
-    gl_FragColor = vec4( 0, 1, 0, 1 );
+    gl_FragColor = vertex_color;
 }"""
     
     def __init__(self):
         super(mainWindow, self).__init__()
         self.sizeX = 700    #Variables used for the setting of the size of everything
         self.sizeY = 600
-        self.setGeometry(0, 0, self.sizeX + 50, self.sizeY)    #Set the window size
+        self.setGeometry(0, 0, self.sizeX, self.sizeY)    #Set the window size
         
         self.openGLWidget = QOpenGLWidget(self)    #Create the GLWidget
         self.openGLWidget.setGeometry(0, 0, self.sizeX, self.sizeY)
@@ -92,16 +97,24 @@ void main() {
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         
         glBegin(GL_LINES)
-            
+
         for w in self.wires:
             for v in w:
+                glColor3fv(self.colors[self.colorCTR])
+                self.colorCTR += 1
+                if self.colorCTR == 4:
+                    self.colorCTR = 0
                 glVertex3fv(self.vertices[v])
         glEnd()
         
         glBegin(GL_QUADS)
-            
+        
         for f in self.facets:
             for v in f:
+                glColor3fv(self.colors[self.colorCTR])
+                self.colorCTR += 1
+                if self.colorCTR == 4:
+                    self.colorCTR = 0
                 glVertex3fv(self.vertices[v])
         glEnd()
 
